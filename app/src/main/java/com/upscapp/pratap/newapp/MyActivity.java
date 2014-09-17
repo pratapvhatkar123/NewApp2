@@ -238,25 +238,44 @@ public class MyActivity extends Activity {
 
 
             HttpGet httpGet = null;
-            try {
-                httpGet =  new HttpGet(URLEncoder.encode(strings[0],"UTF-8"));
-                //httpGet = new HttpGet(URLEncoder.encode("","UTF-8"));//strings[0]);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            httpGet = new HttpGet(strings[0]);
             HttpResponse response = null;
 
             try {
                 response = httpClient.execute(httpGet);
-
                 HttpEntity entity = (HttpEntity) response.getEntity();
 
                 if(entity!=null)
                 {
-                    File outputFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + strings[1]);
+                    File outputFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
                     if (outputFile.exists()) {
                         outputFile.createNewFile();
                     }
+
+                    File folder = new File(Environment.getExternalStorageDirectory() + "/PratapMain");
+                    boolean success = true;
+                    if (!folder.exists()) {
+                        success = folder.mkdir();
+                    }
+
+
+                    if (success) {
+
+                        File file = new File(Environment.getExternalStorageDirectory() + "/book1/page2.html");
+                        if (file.exists()) {
+                            //open file
+                            
+                        }
+                        else
+                        {
+                            //download file and open
+
+                        }
+
+                    }
+
+
+
 
                     InputStream inputStream = entity.getContent();
                     FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
