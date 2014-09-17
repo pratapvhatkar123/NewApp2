@@ -1,6 +1,8 @@
 package com.upscapp.pratap.newapp;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,6 +35,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+
+import static com.upscapp.pratap.newapp.R.string.foldername;
 
 
 public class MyActivity extends Activity {
@@ -198,7 +202,7 @@ public class MyActivity extends Activity {
                     String [] paramers = new String[0];
                     paramers = new String[]
                             {
-                                  "http://www.pdf995.com/samples/pdf.pdf",fileName,"A"
+                                  url,fileName,"A"
 
                             };
 
@@ -244,52 +248,67 @@ public class MyActivity extends Activity {
             try {
                 response = httpClient.execute(httpGet);
                 HttpEntity entity = (HttpEntity) response.getEntity();
-
+                File outputFile = null;
                 if(entity!=null)
                 {
-                    File outputFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
-                    if (outputFile.exists()) {
-                        outputFile.createNewFile();
-                    }
 
-                    File folder = new File(Environment.getExternalStorageDirectory() + "/PratapMain");
+
+                    System.out.println(Environment.getExternalStorageDirectory()+"/"+ foldername);
+
+                    File folder = new File(Environment.getExternalStorageDirectory() + "/"+ "Sample_pdfs");
                     boolean success = true;
                     if (!folder.exists()) {
                         success = folder.mkdir();
+
+                        System.out.println("Folder not  Exist");
+                    }
+                    else
+                    {
+                        System.out.println("Folder Exist");
                     }
 
 
+                    //create folder
                     if (success) {
 
-                        File file = new File(Environment.getExternalStorageDirectory() + "/book1/page2.html");
-                        if (file.exists()) {
-                            //open file
-                            
+                        outputFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ "Sample_pdfs" + "/" + strings[1] + ".pdf");
+                        if (outputFile.exists()) {
+                            outputFile.createNewFile();
+                            System.out.println("File Exist");
+
                         }
                         else
                         {
-                            //download file and open
+                            System.out.println("File not Exist");
+
+
+                            InputStream inputStream = entity.getContent();
+                            FileOutputStream fileOutputStream;
+                            fileOutputStream = new FileOutputStream(outputFile);
+                            int read = 0;
+                            byte[] bytes = new byte[1024];
+                            while ((read = inputStream.read(bytes)) != -1) {
+                                fileOutputStream.write(bytes, 0x0, read);
+                            }
+                            fileOutputStream.close();
+                            System.out.println("Downloded " + outputFile.length() + " bytes. " + entity.getContentType());
 
                         }
 
+                        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+"Sample_pdfs"+"/"+ strings[1]+".pdf" );
+
+                        System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+"Sample_pdfs"+"/"+ strings[1]+".pdf");
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivity(intent);
+
                     }
 
-
-
-
-                    InputStream inputStream = entity.getContent();
-                    FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-                    int read = 0;
-                    byte[] bytes = new byte[1024];
-                    while ((read = inputStream.read(bytes)) != -1) {
-                        fileOutputStream.write(bytes, 0, read);
-                    }
-                    fileOutputStream.close();
-                    System.out.println("Downloded " + outputFile.length() + " bytes. " + entity.getContentType());
-
-                    return null;
                 }
 
+
+                return null;
 
             } catch (IOException e) {
                 e.printStackTrace();
